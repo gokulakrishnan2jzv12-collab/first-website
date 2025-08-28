@@ -12,6 +12,6 @@ It helps me stay productive by organizing my daily tasks ✅
 - Cute ruled page + emoji style background 🎨  
 
 ### 🚀 Live Demo
-👉 [Click here to try it out](https://gokulakrishnan2jzv12-collab.github.io/first-website/)  
+👉 [Click here to try it out](https://gokulakrishnan2jzv12-collab.github.io/To-Do-List-website/)  
 
 ⚠️ **Note:** This is my personal project. Do not copy or reuse without my permission.
