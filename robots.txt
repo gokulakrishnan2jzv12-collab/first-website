@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gokulakrishnan2jzv12-collab.github.io/first-website/sitemap.xml
