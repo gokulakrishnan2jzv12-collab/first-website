@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Plan Your 24 Hours</title>
+
+  <!-- Handwritten Google Fonts (CDN) -->
+  <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&family=Patrick+Hand&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --navy:#0d2a5e;
+      --red:#e74c3c;
+      --green:#2ecc71;
+      --charcoal:#222;
+      --black:#111;
+      --cream:#fffbe9;
+      --sky:#e3f2fd;
+      --mint:#e6fffa;
+      --peach:#ffe9e3;
+      --shadow:0 8px 28px rgba(0,0,0,.14);
+    }
+
+    /* ===== Notebook Background (layered) =====
+       Order: paper noise (repeat), lined paper (repeat), doodle overlay (repeat).
+       All are ONLINE assets; no local files. */
+   html,body{
+  height:100%;
+}
+body{
+  margin:0;
+  color:var(--charcoal);
+  background-color:var(--cream);
+
+  /* Both layers use the same custom image */
+  background-image: 
+    url("https://i.ibb.co/LDKXHxF5/Untitled-design.png"),
+    url("https://i.ibb.co/LDKXHxF5/Untitled-design.png");
+  background-repeat: repeat-y, repeat-y; /* repeat vertically */
+  background-size: cover, cover; /* stretch each image block to width */
+  background-position: top, bottom; /* one at top, one below */
+  
+  /* Soft inset vignette */
+  box-shadow: inset 0 0 32px 6px rgba(0,0,0,.05);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Patrick Hand','Gloria Hallelujah','Shadows Into Light',cursive,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+}
+
+    /* Utilities */
+    .hidden{ display:none !important; }
+    .center-flex{
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+      min-height:100vh; width:100%;
+      text-align:center;
+      padding:24px;
+    }
+
+    /* ===== Homepage ===== */
+    #homepage{
+      position:fixed; inset:0; z-index:1;
+      transition:opacity .35s ease;
+    }
+    .main-date{
+      font-family:'Shadows Into Light','Patrick Hand',cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color:var(--navy);
+      text-shadow: 1px 1px 0 #fffdf0;
+      letter-spacing: .5px;
+      margin-bottom: 24px;
+      user-select:none;
+    }
+    .makelist-btn{
+      font-family:'Gloria Hallelujah','Patrick Hand',cursive;
+      font-size: clamp(1.1rem, 3.2vw, 1.6rem);
+      color:#fff;
+      background:var(--red);
+      border:none;
+      border-radius:999px;
+      padding:18px 44px;
+      cursor:pointer;
+      box-shadow:0 6px 22px rgba(231,76,60,.25);
+      transition: transform .08s ease, box-shadow .18s ease, filter .18s ease;
+      outline:none;
+    }
+    .makelist-btn:hover, .makelist-btn:focus{
+      transform: translateY(-2px) scale(1.03);
+      box-shadow:0 10px 28px rgba(231,76,60,.33);
+      filter: brightness(1.05);
+    }
+
+    /* ===== Main To-Do Page ===== */
+    #todoPage{
+      position:relative;
+      z-index:2;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 14px 110px;
+      transition:opacity .35s ease;
+    }
+
+    /* Sticky date “note” */
+    .sticky-date{
+      position: sticky; top: 18px;
+      display:inline-block;
+      background: #fff7ef;
+      color: var(--navy);
+      padding:10px 18px;
+      border-radius: 18px 12px 24px 18px / 18px 10px 18px 20px;
+      font-family:'Shadows Into Light',cursive;
+      font-size: 1.05rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08), inset 0 2px 0 #ffd9ab;
+      user-select:none;
+      margin-left: 6px;
+    }
+
+    .todo-title{
+      margin-top: 14px;
+      margin-bottom: 16px;
+      text-align:center;
+      font-family:'Gloria Hallelujah',cursive;
+      color:var(--navy);
+      letter-spacing: .8px;
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      text-shadow: 1px 1px 0 #fffdf0;
+    }
+
+    .todo-input-bar{
+      display:flex; gap:10px; justify-content:center;
+      width:100%; max-width: 560px;
+      margin: 0 auto 20px auto;
+    }
+    .todo-input-bar input[type="text"]{
+      flex:1;
+      padding: 14px 16px 12px;
+      border-radius: 16px;
+      border:1.6px solid #d9d9d9;
+      background:#fffffbcc;
+      box-shadow: 0 2px 7px rgba(0,0,0,.06);
+      font-family:inherit; font-size: 1.08rem; color:var(--black);
+      transition: border .18s ease, box-shadow .18s ease;
+    }
+    .todo-input-bar input[type="text"]::placeholder{ color:#888; }
+    .todo-input-bar input[type="text"]:focus{
+      outline:none; border-color:var(--navy);
+      box-shadow: 0 5px 18px rgba(13,42,94,.12);
+    }
+    .add-btn{
+      font-family:'Gloria Hallelujah','Patrick Hand',cursive;
+      background:var(--red); color:#fff;
+      border:none; border-radius:999px;
+      padding: 12px 24px;
+      font-size: 1.05rem;
+      font-weight:700;
+      min-width:92px;
+      cursor:pointer; outline:none;
+      box-shadow: 0 4px 18px rgba(231,76,60,.22);
+      transition: transform .08s ease, box-shadow .18s ease, filter .16s ease;
+    }
+    .add-btn:hover, .add-btn:focus{
+      transform: translateY(-2px) scale(1.03);
+      filter: brightness(1.06);
+      box-shadow: 0 9px 24px rgba(231,76,60,.28);
+    }
+    .add-btn:disabled{
+      background:#e9e9e9; color:#9a9a9a; cursor:not-allowed; box-shadow:none;
+    }
+
+    .input-warning{
+      margin: 6px auto 12px;
+      text-align:center;
+      max-width: 560px;
+      font-size: 1rem;
+      color:var(--red);
+      background:#fff7f4;
+      border-radius: 10px;
+      padding: 6px 12px;
+      box-shadow: 0 2px 8px rgba(231,76,60,.12);
+      font-weight:600;
+      animation: shake .18s linear 1;
+    }
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      30%{transform:translateX(-3px)}
+      55%{transform:translateX(3px)}
+      80%{transform:translateX(-2px)}
+      100%{transform:translateX(0)}
+    }
+
+    /* Task list */
+    .task-list{
+      list-style:none; padding:0; margin: 8px auto 20px;
+      width:100%; max-width:560px;
+    }
+    .task-item{
+      display:flex; align-items:center; gap:12px;
+      padding: 12px 16px;
+      background:#fffefcbf;
+      border-radius: 16px;
+      box-shadow: 0 2px 7px rgba(0,0,0,.06);
+      margin-bottom: 10px;
+      transition: background .18s ease, opacity .15s ease, transform .18s ease;
+    }
+    .task-item:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    }
+    .task-item.done .task-text{
+      text-decoration: line-through;
+      opacity:.7; color:#7a7a7a;
+    }
+    .task-no{
+      min-width: 2.2ch; text-align:right; user-select:none;
+      color:var(--navy); font-family:'Gloria Hallelujah',cursive; font-size:1.02rem;
+    }
+    .task-text{
+      flex:1; font-size:1.06rem; color:var(--black);
+      cursor:pointer; outline:none;
+    }
+    .task-text:focus{
+      text-decoration: underline dashed;
+    }
+    .task-time{
+      font-size:.98rem; color:#215c3b;
+      background: #eafff7;
+      border-radius:8px; padding: 3px 8px;
+      box-shadow: 0 1px 6px rgba(1,187,106,.15);
+      user-select:none; white-space:nowrap;
+    }
+    .tick-btn{
+      min-width:34px; min-height:34px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:var(--green); color:#fff; border:none;
+      border-radius: 12px;
+      font-size:1.25rem; line-height:1;
+      cursor:pointer; outline:none;
+      box-shadow: 0 2px 9px rgba(1,187,106,.18);
+      transition: transform .08s ease, filter .16s ease, box-shadow .18s ease;
+    }
+    .tick-btn:hover,.tick-btn:focus{
+      transform: translateY(-1px) scale(1.05);
+      filter: brightness(1.07);
+      box-shadow: 0 6px 18px rgba(1,187,106,.24);
+    }
+
+    /* Lock button panel */
+    .lock-btn-panel{
+      position:fixed; left:0; right:0; bottom:0;
+      display:flex; justify-content:center;
+      padding: 16px 0 26px;
+      z-index:4;
+      pointer-events:none;
+      background: linear-gradient(0deg, rgba(255,251,233,.88) 40%, transparent 100%);
+    }
+    .lock-btn{
+      pointer-events:auto;
+      font-family:'Gloria Hallelujah','Patrick Hand',cursive;
+      background:var(--green); color:#fff;
+      border:none; border-radius:999px;
+      padding: 13px 28px;
+      min-width: 140px;
+      font-size: 1.06rem; font-weight:700; letter-spacing:.2px;
+      box-shadow: 0 6px 22px rgba(1,187,106,.22);
+      cursor:pointer; outline:none;
+      transition: transform .08s ease, filter .16s ease, box-shadow .18s ease;
+    }
+    .lock-btn.locked{ background:var(--red); box-shadow: 0 6px 22px rgba(231,76,60,.23); }
+    .lock-btn:hover, .lock-btn:focus{
+      transform: translateY(-2px) scale(1.03);
+      filter: brightness(1.06);
+    }
+
+    /* ===== Custom Modal System ===== */
+    .modal-backdrop{
+      position:fixed; inset:0; display:none;
+      background: rgba(34,34,34,.3);
+      z-index: 1000;
+      align-items:center; justify-content:center;
+      animation: fadeBackdrop .18s ease;
+    }
+    .modal-backdrop.show{ display:flex; }
+    @keyframes fadeBackdrop{ from{opacity:0} to{opacity:1} }
+
+    .modal{
+      width:min(92vw, 560px);
+      background:var(--sky);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 22px 22px 18px;
+      display:flex; flex-direction:column; gap:12px;
+      animation: rise .2s cubic-bezier(.55,.08,.27,1.2);
+      outline:none;
+    }
+    .modal.mint{ background: var(--mint); }
+    .modal.peach{ background: var(--peach); }
+    @keyframes rise{ from{opacity:0; transform:translateY(20px)} to{opacity:1; transform:translateY(0)} }
+
+    .modal-title{
+      font-family:'Gloria Hallelujah',cursive; color:var(--navy);
+      font-size:1.25rem; margin-bottom:4px;
+    }
+    .modal-content{ font-size:1.05rem; color:var(--black); }
+    .modal-btn-bar{ display:flex; justify-content:flex-end; gap:10px; margin-top:6px; }
+    .modal-btn{
+      background:var(--red); color:#fff; border:none; border-radius: 999px;
+      padding:10px 18px; font-weight:700; cursor:pointer; outline:none;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      transition: transform .08s ease, filter .15s ease, box-shadow .18s ease;
+    }
+    .modal-btn.green{ background:var(--green); }
+    .modal-btn:hover, .modal-btn:focus{
+      transform: translateY(-1px) scale(1.03); filter: brightness(1.06);
+      box-shadow: 0 9px 22px rgba(0,0,0,.16);
+    }
+
+    /* Time picker grid */
+    .timepicker-grid{ display:flex; flex-direction:column; gap:12px; }
+    .time-row{ display:flex; align-items:center; gap:10px; }
+    .tlabel{
+      width:64px; text-align:right; color:var(--navy);
+      font-weight:700; font-family:'Patrick Hand',cursive;
+    }
+    select{
+      font-family:'Patrick Hand',cursive;
+      color:var(--navy); font-size:1rem;
+      padding:6px 8px; background:#fafffd;
+      border-radius:9px; border:1.5px solid #d3eef5;
+      box-shadow: 0 1px 4px rgba(205,249,248,.12);
+      outline:none; transition: border-color .12s ease;
+    }
+    select:focus{ border-color:var(--navy); }
+
+    /* Responsive tweaks */
+    @media (max-width:700px){
+      #todoPage{ padding-bottom:110px; }
+      .task-list, .todo-input-bar{ max-width:96vw; }
+      .sticky-date{ margin-left: 8px; }
+    }
+
+    /* Tiny fade/slide on item add */
+    .fade-slide-up{ animation: fadeSlide .28s cubic-bezier(.7,.1,.2,1.1); }
+    @keyframes fadeSlide{ from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:translateY(0)} }
+  </style>
+</head>
+<body>
+  <!-- ===== Homepage / First Interface ===== -->
+  <section id="homepage" class="center-flex" aria-label="Welcome">
+    <div>
+      <div class="main-date" id="mainDate"></div>
+      <button class="makelist-btn" id="gotoListBtn" type="button" aria-label="Go to planner">📝&nbsp;&nbsp;Make List</button>
+    </div>
+  </section>
+
+  <!-- ===== Main To-Do List Page ===== -->
+  <section id="todoPage" class="hidden" aria-label="Daily Planner">
+    <div class="sticky-date" id="sideDate" aria-hidden="true"></div>
+
+    <h1 class="todo-title">Plan Your 24 Hours&nbsp;📝</h1>
+
+    <!-- Input bar -->
+    <form class="todo-input-bar" id="inputBar" autocomplete="off">
+      <input id="taskInput" type="text" maxlength="120" aria-label="Enter your task"
+             placeholder="Enter the task ✨" />
+      <button id="addBtn" class="add-btn" type="submit" aria-label="Add task">Add</button>
+    </form>
+    <div id="inputWarning" class="input-warning hidden" role="alert"></div>
+
+    <!-- Tasks -->
+    <ol id="taskList" class="task-list" aria-label="Your tasks"></ol>
+
+    <!-- Lock control -->
+    <div class="lock-btn-panel">
+      <button id="lockBtn" class="lock-btn" type="button" aria-label="Lock planner">
+        <span id="lockBtnIcon">🔓</span>&nbsp;<span id="lockBtnLabel">Lock</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== Modal Root ===== -->
+  <div id="modalRoot" aria-live="polite"></div>
+
+  <script>
+  /* ===========================================================
+     Single-file SPA Planner — State, UI, Persistence, Modals
+     =========================================================== */
+
+  // ---- Constants ----
+  const STORAGE_KEY = 'notebookTodo_v1';
+  const COLORS = {
+    navy:'#0d2a5e', red:'#e74c3c', green:'#2ecc71', sky:'#e3f2fd', mint:'#e6fffa', peach:'#ffe9e3'
+  };
+
+  // ---- App State Model ----
+  let appState = {
+    lastUsedDate: '',      // 'YYYY-MM-DD'
+    locked: false,
+    tasks: []              // {id,text,start,end,done}
+  };
+
+  // ---- Helpers ----
+  const $ = id => document.getElementById(id);
+  const todayDateStr = () => {
+    const n = new Date();
+    return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  };
+  const formatDateLong = (d) => d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const isToday = (yyyy_mm_dd) => yyyy_mm_dd === todayDateStr();
+  const uid = () => (crypto?.randomUUID?.() ?? ('t'+Date.now()+Math.floor(Math.random()*1e7)));
+
+  const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+  const loadState = () => {
+    try{
+      const s = localStorage.getItem(STORAGE_KEY);
+      return s ? JSON.parse(s) : null;
+    }catch{ return null; }
+  };
+
+  function maybeDailyReset(){
+    const last = appState.lastUsedDate || '';
+    const today = todayDateStr();
+    if (last !== today){
+      // New calendar day => reset tasks and unlock
+      appState.tasks = [];
+      appState.locked = false;
+      appState.lastUsedDate = today;
+      saveState();
+      return true;
+    }
+    return false;
+  }
+
+  // ---- View Switching ----
+  function showHomepage(){
+    $('homepage').classList.remove('hidden');
+    $('todoPage').classList.add('hidden');
+  }
+  function showTodoPage(){
+    $('homepage').classList.add('hidden');
+    $('todoPage').classList.remove('hidden');
+    requestAnimationFrame(()=>{ if(!appState.locked) $('taskInput').focus(); });
+  }
+
+  // ---- Date in UI ----
+  function updateDatesInUI(){
+    const now = new Date();
+    $('mainDate').textContent = formatDateLong(now);
+    $('sideDate').textContent = formatDateLong(now);
+  }
+
+  // ---- Modals (custom) ----
+  let currentBackdrop = null, previousFocus = null;
+
+  /**
+   * openModal({title, content (string or HTMLElement), type:'sky'|'mint'|'peach', buttons:[{label,value,isDefault,ariaLabel,color:'green'|'red'}], onClose(value), focusTrap=true, ariaLabel})
+   */
+  function openModal({title, message, content, type='sky', buttons=[], onClose, focusTrap=true, ariaLabel=null}){
+    closeModal(); // ensure single
+
+    const root = $('modalRoot');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop show';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal ' + (type==='mint' ? 'mint' : type==='peach' ? 'peach' : '');
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    if (ariaLabel) modal.setAttribute('aria-label', ariaLabel);
+    modal.tabIndex = -1;
+
+    if (title){
+      const t = document.createElement('div'); t.className='modal-title'; t.textContent=title; modal.appendChild(t);
+    }
+    const c = document.createElement('div'); c.className='modal-content';
+    if (content instanceof HTMLElement) c.appendChild(content);
+    else c.innerHTML = (content ?? message ?? '');
+    modal.appendChild(c);
+
+    const bar = document.createElement('div'); bar.className='modal-btn-bar';
+    buttons.forEach(({label,value,isDefault,ariaLabel,color})=>{
+      const b = document.createElement('button');
+      b.type='button';
+      b.className = 'modal-btn' + (color==='green' ? ' green' : '');
+      b.textContent = label;
+      if (ariaLabel) b.setAttribute('aria-label', ariaLabel);
+      if (isDefault) b.setAttribute('autofocus','autofocus');
+      b.addEventListener('click', ()=>{ closeModal(); onClose && onClose(value); });
+      bar.appendChild(b);
+    });
+    modal.appendChild(bar);
+
+    // Close when clicking outside (only if a "cancel/false" button exists)
+    const hasCancelable = buttons.some(b=>b.value===false);
+    backdrop.addEventListener('mousedown', (e)=>{
+      if (e.target===backdrop && hasCancelable){ closeModal(); onClose && onClose(false); }
+    });
+
+    // Keyboard handling
+    function keyHandler(e){
+      if (e.key === 'Escape'){ e.preventDefault(); closeModal(); onClose && onClose(false); }
+      if (focusTrap && e.key === 'Tab'){
+        const focusables = modal.querySelectorAll('button,[tabindex]:not([tabindex="-1"])');
+        if (!focusables.length) return;
+        let i = Array.from(focusables).indexOf(document.activeElement);
+        if (e.shiftKey){
+          if (document.activeElement===modal || i===0){ focusables[focusables.length-1].focus(); e.preventDefault(); }
+        } else {
+          if (i===focusables.length-1){ focusables[0].focus(); e.preventDefault(); }
+        }
+      }
+    }
+    backdrop.addEventListener('keydown', keyHandler);
+
+    backdrop.appendChild(modal);
+    root.appendChild(backdrop);
+
+    previousFocus = document.activeElement;
+    currentBackdrop = backdrop;
+    setTimeout(()=> modal.focus(), 20);
+  }
+  function closeModal(){
+    if (currentBackdrop){
+      currentBackdrop.remove();
+      currentBackdrop = null;
+      if (previousFocus && previousFocus.focus) { try{ previousFocus.focus(); }catch{} }
+      previousFocus = null;
+    }
+  }
+
+  // ---- Time Picker ----
+  function openTimePicker(onDone){
+    // Build dropdowns
+    const content = document.createElement('div');
+    content.className = 'timepicker-grid';
+    const hourOpts = Array.from({length:12}, (_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    const minOpts = Array.from({length:12}, (_,i)=>String(i*5).padStart(2,'0')).map(m=>`<option value="${m}">${m}</option>`).join('');
+
+    const startRow = document.createElement('div');
+    startRow.className='time-row';
+    startRow.innerHTML = `
+      <span class="tlabel">Start:</span>
+      <select id="sH">${hourOpts}</select>
+      <span>:</span>
+      <select id="sM">${minOpts}</select>
+      <select id="sAP"><option>AM</option><option>PM</option></select>
+    `;
+
+    const endRow = document.createElement('div');
+    endRow.className='time-row';
+    endRow.innerHTML = `
+      <span class="tlabel">End:</span>
+      <select id="eH">${hourOpts}</select>
+      <span>:</span>
+      <select id="eM">${minOpts}</select>
+      <select id="eAP"><option>AM</option><option>PM</option></select>
+    `;
+
+    content.append(startRow,endRow);
+
+    openModal({
+      title:'Select Time For Task',
+      content,
+      type:'mint',
+      buttons:[
+        {label:'Save Time', value:'save', isDefault:true, color:'green', ariaLabel:'Save selected time'},
+        {label:'Skip', value:'skip', ariaLabel:'Skip selecting time'}
+      ],
+      ariaLabel:'Time picker modal for task',
+      onClose:(val)=>{
+        if (val==='save'){
+          const s = `${content.querySelector('#sH').value}:${content.querySelector('#sM').value} ${content.querySelector('#sAP').value}`;
+          const e = `${content.querySelector('#eH').value}:${content.querySelector('#eM').value} ${content.querySelector('#eAP').value}`;
+          onDone({start:s, end:e});
+        } else if (val==='skip'){
+          onDone(null);
+        }
+      }
+    });
+  }
+
+  // ---- Rendering Tasks ----
+  function renderTasks(){
+    const list = $('taskList');
+    list.innerHTML = '';
+    appState.tasks.forEach((t, idx)=>{
+      const li = document.createElement('li');
+      li.className = 'task-item fade-slide-up' + (t.done ? ' done' : '');
+      li.setAttribute('data-id', t.id);
+
+      const no = document.createElement('span');
+      no.className = 'task-no';
+      no.textContent = (idx+1) + '.';
+      li.appendChild(no);
+
+      const text = document.createElement('span');
+      text.className = 'task-text';
+      text.textContent = t.text;
+      text.setAttribute('tabindex','0');
+      text.setAttribute('title', appState.locked ? 'Locked — deletion disabled' : 'Click to delete');
+      if (!appState.locked){
+        text.addEventListener('click', ()=> onTaskDelete(t));
+        text.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onTaskDelete(t); }});
+      }
+      li.appendChild(text);
+
+      if (t.start && t.end){
+        const time = document.createElement('span');
+        time.className = 'task-time';
+        time.textContent = `${t.start} - ${t.end}`;
+        time.setAttribute('aria-label', `Task time: ${t.start} to ${t.end}`);
+        li.appendChild(time);
+      }
+
+      const tick = document.createElement('button');
+      tick.type='button';
+      tick.className='tick-btn';
+      tick.setAttribute('aria-label', t.done ? 'Already completed' : 'Mark as done');
+      tick.innerHTML = '✓';
+      tick.addEventListener('click', (e)=>{ e.stopPropagation(); onTaskStrike(t); });
+      li.appendChild(tick);
+
+      list.appendChild(li);
+    });
+  }
+
+  // ---- Input warning ----
+  function showWarning(msg){
+    const w = $('inputWarning');
+    w.textContent = msg; w.classList.remove('hidden');
+    setTimeout(()=> w.classList.add('hidden'), 1700);
+  }
+
+  // ---- Event Handlers ----
+  function onTaskAdd(e){
+    e?.preventDefault?.();
+    if (appState.locked) return;
+    const val = $('taskInput').value.trim();
+    if (!val){ showWarning("What’s the plan? Add a task first ✍️"); return; }
+
+    openTimePicker((times)=>{
+      const task = { id: uid(), text: val, start: times?.start ?? null, end: times?.end ?? null, done:false };
+      appState.tasks.push(task);
+      saveState();
+      renderTasks();
+      $('taskInput').value = '';
+      $('taskInput').focus();
+    });
+  }
+
+  function onTaskStrike(task){
+    openModal({
+      title:'Strike Out?',
+      message:'Are you sure you want to strike out this task?',
+      type:'sky',
+      buttons:[
+        {label:'Yes', value:true, isDefault:true, color:'green', ariaLabel:'Confirm strikeout'},
+        {label:'No', value:false, ariaLabel:'Cancel'}
+      ],
+      ariaLabel:'Confirm strikeout',
+      onClose:(yes)=>{
+        if(yes){
+          task.done = true;
+          saveState();
+          renderTasks();
+        }
+      }
+    });
+  }
+
+  function onTaskDelete(task){
+    openModal({
+      title:'Delete Task?',
+      message:'Do you want to delete this task?',
+      type:'peach',
+      buttons:[
+        {label:'Yes', value:true, isDefault:true, color:'green', ariaLabel:'Confirm delete'},
+        {label:'No', value:false, ariaLabel:'Cancel'}
+      ],
+      ariaLabel:'Confirm deletion',
+      onClose:(yes)=>{
+        if(yes){
+          const i = appState.tasks.findIndex(t=>t.id===task.id);
+          if (i!==-1){
+            appState.tasks.splice(i,1);
+            saveState();
+            renderTasks(); // re-number automatically
+          }
+        }
+      }
+    });
+  }
+
+  // ---- Locking ----
+  function updateLockUI(){
+    $('taskInput').disabled = !!appState.locked;
+    $('addBtn').disabled = !!appState.locked;
+    $('lockBtn').classList.toggle('locked', !!appState.locked);
+    $('lockBtnLabel').textContent = appState.locked ? 'Unlock' : 'Lock';
+    $('lockBtnIcon').textContent = appState.locked ? '🔒' : '🔓';
+    renderTasks(); // ensure delete handlers align with lock state
+  }
+
+  function toggleLock(){
+    if (appState.locked){
+      openModal({
+        title:'Unlock List',
+        message:'Are you sure you want to unlock editing?',
+        type:'mint',
+        buttons:[
+          {label:'Yes', value:true, isDefault:true, color:'green', ariaLabel:'Confirm unlock'},
+          {label:'No', value:false, ariaLabel:'Cancel'}
+        ],
+        ariaLabel:'Confirm unlock',
+        onClose:(yes)=>{
+          if(yes){
+            appState.locked = false; saveState(); updateLockUI();
+          }
+        }
+      });
+    } else {
+      openModal({
+        title:'Lock List',
+        message:'No more adding or deleting. Are you sure?',
+        type:'peach',
+        buttons:[
+          {label:'Yes', value:true, isDefault:true, color:'green', ariaLabel:'Confirm lock'},
+          {label:'No', value:false, ariaLabel:'Cancel'}
+        ],
+        ariaLabel:'Confirm lock',
+        onClose:(yes)=>{
+          if(yes){
+            appState.locked = true; saveState(); updateLockUI();
+          }
+        }
+      });
+    }
+  }
+
+  // ---- Init ----
+  function initialize(){
+    // Load saved state
+    const saved = loadState();
+    if (saved && typeof saved==='object'){ appState = saved; }
+
+    // Daily reset if needed
+    if (maybeDailyReset()) { saveState(); }
+
+    // Always stamp today's date
+    appState.lastUsedDate = todayDateStr();
+    saveState();
+
+    // Dates in UI
+    updateDatesInUI();
+
+    // Start on homepage
+    showHomepage();
+
+    // Events
+    $('gotoListBtn').addEventListener('click', ()=>{
+      showTodoPage(); updateDatesInUI(); renderTasks(); updateLockUI();
+    });
+
+    // Form events
+    $('inputBar').addEventListener('submit', onTaskAdd);
+    $('addBtn').addEventListener('click', onTaskAdd);
+    $('taskInput').addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter'){ e.preventDefault(); onTaskAdd(e); }
+    });
+
+    // Lock button
+    $('lockBtn').addEventListener('click', toggleLock);
+
+    // Render initial main page state (in case user reloads while already on it)
+    renderTasks(); updateLockUI();
+
+    // When tab becomes visible again, check for new day reset
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.visibilityState === 'visible'){
+        if (maybeDailyReset()){ saveState(); renderTasks(); updateLockUI(); updateDatesInUI(); }
+      }
+    });
+
+    // keep background positioning crisp on orientation/resize
+    window.addEventListener('resize', ()=>{
+      document.body.style.backgroundPosition = 'center center, center top, center center';
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', initialize);
+  </script>
+</body>
+</html>
